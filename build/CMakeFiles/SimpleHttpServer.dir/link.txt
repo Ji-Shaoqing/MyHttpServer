@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/SimpleHttpServer.dir/main.cpp.o -o SimpleHttpServer  -lpthread 

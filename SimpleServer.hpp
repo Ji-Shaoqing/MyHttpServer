@@ -64,7 +64,7 @@ public:
         std::cout << "Client connected." << std::endl;
         std::cout << "Handling client request..." << std::endl;
 
-        // 读取请求（循环直到读到空行分隔请求头或读取结束）
+        // Read request (handling partial reads).
         std::string req;
         const int chunk = 1024;
         char buf[chunk];
@@ -72,10 +72,10 @@ public:
         while ((n = read(client_fd, buf, chunk)) > 0) {
             req.append(buf, buf + n);
             if (req.find("\r\n\r\n") != std::string::npos) break;
-            // 如果数据量超过一定大小，也停止读取以避免无限增长
+            // If the data exceeds a certain size, stop reading to avoid infinite growth.
             if (req.size() > 16 * 1024) break;
-            // 若还有数据可读则继续循环（阻塞式）
-            // 在简单服务器中不做更复杂的非阻塞处理
+            // If there is still data to read, continue the loop (blocking).
+            // In a simple server, no more complex non-blocking processing is done.
         }
         if (n < 0) {
             std::cerr << "Read error on client socket." << std::endl;
@@ -85,7 +85,7 @@ public:
 
         std::cout << "Received request:\n" << req << std::endl;
 
-        // 解析请求首行
+        // Parse request line.
         size_t pos = req.find("\r\n");
         std::string firstLine = (pos == std::string::npos) ? req : req.substr(0, pos);
         std::cout << "Request line: " << firstLine << std::endl;
@@ -94,7 +94,7 @@ public:
         std::string method, path, httpver;
         iss >> method >> path >> httpver;
 
-        // 如果浏览器请求 favicon，则返回 404 并关闭连接
+        // If the browser requests favicon, return 404 and close the connection.
         if (path == "/favicon.ico") {
             std::string notfound = "HTTP/1.1 404 Not Found\r\n"
                                    "Content-Length: 0\r\n"
@@ -111,7 +111,7 @@ public:
             return;
         }
 
-        // 构造响应（包含 Content-Length 和 Connection: close）
+        // Construct response (including Content-Length and Connection: close).
         std::string body = createHTMLResponse("Simple Server", "Hello from SimpleServer!");
         std::ostringstream resp;
         resp << "HTTP/1.1 200 OK\r\n"
@@ -121,7 +121,7 @@ public:
              << body;
         std::string http_response = resp.str();
 
-        // 发送响应（处理部分发送）
+        // Send response (handling partial sends).
         ssize_t sent = 0;
         size_t total = http_response.size();
         while (sent < (ssize_t)total) {

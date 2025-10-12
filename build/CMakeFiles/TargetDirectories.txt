@@ -1,3 +1,0 @@
-/home/jisq/MyHttpServer/build/CMakeFiles/SimpleHttpServer.dir
-/home/jisq/MyHttpServer/build/CMakeFiles/edit_cache.dir
-/home/jisq/MyHttpServer/build/CMakeFiles/rebuild_cache.dir

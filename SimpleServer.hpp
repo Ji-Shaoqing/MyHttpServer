@@ -2,6 +2,7 @@
 #define SIMPLESERVER_HPP
 
 #include"SimpleSocket.hpp"
+#include"ThreadPool.hpp"
 #include<iostream>
 #include<string>
 #include<sstream>
@@ -9,7 +10,7 @@
 
 class SimpleServer {
 public:
-    SimpleServer(int pt): port(pt) {
+    SimpleServer(int pt): port(pt), pool(4) {
         setupServer();
     }
 
@@ -144,13 +145,19 @@ public:
                 std::cout << "Failed to accept connection!" << std::endl;
                 continue;
             }
-            handleClient(client_fd);
+            //handleClient(client_fd);
+            pool.enqueue([this, client_fd]() {
+                this->handleClient(client_fd);
+            });
+            std::cout << "[Main] Connection queued for processing. FD: "
+                      << client_fd << std::endl;
         }
     }
 
 private:
     SimpleSocket server_socket;
     int port;
+    ThreadPool pool;
 };
 
 #endif // SIMPLESERVER_HPP
